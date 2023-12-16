@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>黄牛控制</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f2f2f2;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 10px;
+      width: 100vw;
+      height: 100vh;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .grid-item {
+    position: relative; /* 添加相对定位 */
+      background-color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 54px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+
+    .grid-item a {
+      text-decoration: none;
+      color: #000;
+      padding: 10px;
+      position: absolute; /* 添加绝对定位 */
+      top: 0;
+      left: 0;
+      width: 100%; /* 扩展到外部的div */
+      height: 100%; /* 扩展到外部的div */
+      font-size:24px;  /* 全屏正常,非全屏太小 */
+      color: #000;
+      padding: 10px;
+      text-decoration: none;
+      display: flex; /* 添加Flex布局 */
+      justify-content: center; /* 水平居中 */
+      align-items: center; /* 垂直居中 */
+    }
+    #myElement {
+      width: 100%;
+      height: 100vh;
+      background-color: lightgray;
+    }
+    /* 非全屏模式下的样式 */
+    #myElement {
+      font-size: 16px; /* 默认字体大小 */
+    }
+
+    /* 全屏模式下的样式 */
+    @media (fullscreen) {
+      .grid-item {
+        font-size: 24px; /* 全屏模式下的字体大小 */
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="myElement">
+  <div class="grid-container" >
+     <div class="grid-item">
+      <a href="\jb\关机重启?动作=关机&时间=60" onclick="sendGetRequest(event); ">60秒关机</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\关机重启?动作=重启&时间=60" onclick="sendGetRequest(event); ">60秒重启</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\关机重启?动作=取消&时间=" onclick="sendGetRequest(event); ">取消关机</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=http:\\www.baidu.com" onclick="sendGetRequest(event); ">百度</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=d:\" onclick="sendGetRequest(event); ">D盘</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=static\录音.mp3" onclick="sendGetRequest(event); ">播放音乐</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\发邮件">发邮件</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打印py">打印文件</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\二维码生成py">二维码生成</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\模拟输出按键py?key1=left&key2=&key3=" onclick="sendGetRequest(event); ">ppt上一页</a>
+    </div>
+     <div class="grid-item">
+      <a href="\p\控制ppt.html">控制PPT功能</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\模拟输出按键py?key1=right&key2=&key3=" onclick="sendGetRequest(event); ">ppt下一页</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb">API列表</a>
+    </div>
+     <div class="grid-item">
+      <a onclick="toggleFullscreen()"> 切换全屏</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=templates\index公开版.xlsm" onclick="sendGetRequest(event); ">修改网页</a>
+    </div>
+</div>
+
+</div>
+  <script>
+
+
+    function playmp3(url) {
+    // 创建 Audio 对象
+    var audio = new Audio(url);
+    // 播放音乐
+    audio.play();
+    }
+ 
+    function sendLinkText(event) {
+      event.preventDefault(); // 阻止默认的链接跳转行为
+      var linkText = event.target.href
+      linkText = linkText.substring(6);
+      const data = {
+        "constr": linkText
+      };
+      var url ="/jbpost"
+      var t1=sendPostRequest(url,data);
+
+    }
+
+
+  function sendGetRequest(event) {
+    event.preventDefault(); // 阻止默认的链接导航行为
+
+    var url = event.target.href; // 获取链接的URL
+
+    fetch(url)
+      .then(function(response) {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error('Network response was not ok.');
+      })
+      .then(function(data) {
+        console.log('Response:', data);
+        // 处理响应数据
+      })
+      .catch(function(error) {
+        console.error('Error:', error);
+      });
+      playmp3("../static/click.mp3")
+  }
+
+
+
+function sendPostRequest(url, data) {
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+    .then(response => response.json())
+    .then(result => {
+      console.log("POST request successful:", result);
+      return result;
+    })
+    .catch(error => {
+      console.error("Error sending POST request:", error);
+      throw error;
+    });
+}
+    
+
+    var myElement = document.getElementById("myElement");
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement &&    // 全屏模式未激活
+          !document.mozFullScreenElement && 
+          !document.webkitFullscreenElement && 
+          !document.msFullscreenElement) {  // 进入全屏模式
+        if (myElement.requestFullscreen) {
+          myElement.requestFullscreen();
+        } else if (myElement.mozRequestFullScreen) { // Firefox
+          myElement.mozRequestFullScreen();
+        } else if (myElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+          myElement.webkitRequestFullscreen();
+        } else if (myElement.msRequestFullscreen) { // IE/Edge
+          myElement.msRequestFullscreen();
+        }
+      } else {  // 退出全屏模式
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) { // Firefox
+          document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { // IE/Edge
+          document.msExitFullscreen();
+        }
+      }
+    }
+
+
+    
+  </script>
+
+</body>
+</html>
