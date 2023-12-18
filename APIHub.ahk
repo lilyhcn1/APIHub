@@ -48,7 +48,7 @@ SetTimer, CheckProcess, 10000
 return
 
 modifyindex:
-    run, notepad.exe py\templates\index.html
+    run, notepad.exe templates\index.html
 return
 updatepython:
     run, soft\py38-安装python环境.bat
@@ -56,7 +56,7 @@ return
 
 
 excelmodifyindex:
-    run, notepad.exe templates\index公开版.xlsm
+    run, notepad.exe templates\网址生成.xlsm
 return
 
 CheckProcess:
@@ -69,6 +69,7 @@ CheckProcess:
     }
 return
 TestScript:
+
     Run, "%PythonScript%"
 return 
 

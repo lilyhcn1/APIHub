@@ -6,11 +6,20 @@ import time
 def paste_text(text):
     pyperclip.copy(text)
     pyautogui.hotkey('ctrl', 'v')
-    time.sleep(0.1)
+
 #输入英文
 def type_english(text):
     pyautogui.typewrite(text)
-    time.sleep(0.1)
+#按键或快捷键
+def press_key(key1,key2="",key3=""):
+    if (key3!="" and key2!=""):
+        pyautogui.hotkey(key1,key2,key3)
+    elif key2!="":
+        pyautogui.hotkey(key1,key2)
+    elif key1!="":
+        pyautogui.press(key1)
+    else:
+        print("按键传参错误。")
 
 
 #11111111111111111111111111111111111111111111111111111111111111
@@ -100,7 +109,6 @@ def main(fd2={}):
     try:  # 运行函数,最后要生成arr2ret及f64
 
 
-        time.sleep(1)
         type_english(valarr["text"])
  
 
