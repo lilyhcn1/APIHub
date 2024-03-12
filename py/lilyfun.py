@@ -66,26 +66,32 @@ def readini(sec,key):
     return appid
 
 def readiniconfig():
-    config = configparser.ConfigParser()
-    config.read(INIPATH)
+    try:
+        config = configparser.ConfigParser()
+        config.read(INIPATH)
+    except:
+        config="error"
     return config
 
 def updatearrfromini(arr,config=""):
-    newarr={}
-    for inkey in arr.keys():
-        if inkey != "" :
-            newarr[inkey]=arr[inkey]
-
-    if config !="":
-        # titlepr("config更新中：",config)
+    try:
+        newarr={}
         for inkey in arr.keys():
             if inkey != "" :
-                if arr[inkey] ==INIUPDATEFLAG:
-                    try:
-                        #titlepr("config['ApiKeys'][inkey]",config['ApiKeys'][inkey])
-                        newarr[inkey]=config['ApiKeys'][inkey]
-                    except:
-                        print("从config强制更新配置["+inkey+ "]失败！~")
+                newarr[inkey]=arr[inkey]
+
+        if config !="":
+            # titlepr("config更新中：",config)
+            for inkey in arr.keys():
+                if inkey != "" :
+                    if arr[inkey] ==INIUPDATEFLAG:
+                        try:
+                            #titlepr("config['ApiKeys'][inkey]",config['ApiKeys'][inkey])
+                            newarr[inkey]=config['ApiKeys'][inkey]
+                        except:
+                            print("从config强制更新配置["+inkey+ "]失败！~")
+    except:
+        newarr=arr
     return newarr
 
 def firstkey(arr):

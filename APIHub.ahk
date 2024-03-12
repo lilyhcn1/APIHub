@@ -7,7 +7,7 @@ CoordMode, Mouse, Screen
 ProcessName := "python38.exe"
 
 ; 定义要运行的Python脚本路径
-PythonScript = "%A_ScriptDir%\soft\启动uvicorn.bat"
+pythonscript = "%A_ScriptDir%\soft\启动uvicorn.bat"
 
 hidescript = "%A_ScriptDir%\soft\nircmd启动uvicorn.bat"
 ;hidescript = "%A_ScriptDir%\soft\启动uvicorn.bat"
@@ -21,14 +21,23 @@ Menu, Tray, Add
 Menu, Tray, Add, 修改网页, modifyindex
 Menu, Tray, Add, Excel修改网页, excelmodifyindex
 
+
+
+
+
+
+
 Menu, Tray, Add
 ;Menu, Tray, Add, 更新python库, updatepython
-Menu, Tray, Add, 运行服务器, RunScript
-Menu, Tray, Add, 调试服务器, TestScript
-Menu, Tray, Add, 开机启动, Runstartup
-Menu, Tray, Add, 关闭并退出服务器, ExitScript
-OnMessage(0x200, "ShowMenu")
+Menu, TestSubMenu, Add,运行服务器, RunScript
+Menu, TestSubMenu, Add,重载脚本, ReloadScript
+Menu, TestSubMenu, Add, 调试服务器, TestScript
+Menu, TestSubMenu, Add,开机启动, Runstartup
 
+OnMessage(0x200, "ShowMenu")
+; 将子菜单添加到一级菜单上
+Menu, Tray, Add, 调试服务器, :TestSubMenu
+Menu, Tray, Add,关闭并退出服务器, ExitScript
 hasRun := 0
 if (hasRun = 0) {
     hasRun := 1
@@ -50,6 +59,9 @@ return
 modifyindex:
     run, notepad.exe py\templates\index.html
 return
+ReloadScript:
+    reload
+return
 updatepython:
     run, soft\py38-安装python环境.bat
 return
@@ -69,13 +81,15 @@ CheckProcess:
     }
 return
 TestScript:
-
-    Run, "%PythonScript%"
+    RunWait, taskkill /F /IM python38.exe, , Hide
+    RunWait, taskkill /F /IM nircmd.exe, , Hide
+    Run, %pythonscript%
 return 
 
 
 RunScript:
     ; 运行Python脚本
+
     Run, "%hidescript%",, Min
 return
 

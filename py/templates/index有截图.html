@@ -1,0 +1,275 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>黄牛控制</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f2f2f2;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 10px;
+      width: 100vw;
+      height: 100vh;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .grid-item {
+    position: relative; /* 添加相对定位 */
+      background-color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 54px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+
+    .grid-item a {
+      text-decoration: none;
+      color: #000;
+      padding: 10px;
+      position: absolute; /* 添加绝对定位 */
+      top: 0;
+      left: 0;
+      width: 100%; /* 扩展到外部的div */
+      height: 100%; /* 扩展到外部的div */
+      font-size:66px;  /* 全屏正常,非全屏太小 */
+      color: #000;
+      padding: 10px;
+      text-decoration: none;
+      display: flex; /* 添加Flex布局 */
+      justify-content: center; /* 水平居中 */
+      align-items: center; /* 垂直居中 */
+    }
+    #myElement {
+      width: 100%;
+      height: 100vh;
+      background-color: lightgray;
+    }
+    /* 非全屏模式下的样式 */
+    #myElement {
+      font-size: 16px; /* 默认字体大小 */
+    }
+
+    /* 全屏模式下的样式 */
+    @media (fullscreen) {
+      .grid-item {
+        font-size: 24px; /* 全屏模式下的字体大小 */
+      }
+    }
+  </style>
+    <style>
+        #image-container {
+            width: 100%;
+            height: 100px;
+            background-color: #f1f1f1;
+            overflow: hidden; /* 隐藏溢出内容 */
+        }
+
+        #image-container img {
+            max-width: 100%;
+            height: auto;
+            display: block; /* 将图像设置为块级元素 */
+            opacity: 0; /* 初始时设置图像透明度为0 */
+            transition: opacity 0.5s ease-in-out; /* 添加过渡效果 */
+        }
+
+        #image-container img.loaded {
+            opacity: 1; /* 设置图像透明度为1，显示图像 */
+        }
+    </style>
+</head>
+<body>
+<!--<div id="image-container"></div>-->
+<!--<img id="myImage" src="image1.jpg" alt="Image">-->
+
+
+
+
+  <div class="grid-container" >
+     <div class="grid-item">
+      <a href="\jb\打印?文件=D:\Seafile\私人资料库\个人研究\每日一卷\每日一卷_样卷.docx" onclick="sendGetRequest(event); ">打印每日一记</a>
+    </div>
+     <div class="grid-item">
+      <a onclick="toggleFullscreen()"> 切换全屏</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=http:\\www.weather.com.cn/weather1d/101210610.shtml#input" onclick="sendGetRequest(event); ">临海天气</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=%r34%\1王进利私人资料\0个人保密文件\局域网文件管理.ahk" onclick="sendGetRequest(event); ">局域网文件管理</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb">API站点</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=%r34%\个人研究\APIHub\py\templates\网址生成.xlsx" onclick="sendGetRequest(event); ">修改菜单</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=%r34%\1王进利私人资料\0个人保密文件\打开191重要资料.bat" onclick="sendGetRequest(event); ">191重要资料</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\下载并运行程序?程序名=锁屏" onclick="sendGetRequest(event); ">离开一会</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=https:\\kycxfwpt.tzc.edu.cn/userAction!do_casLogin.action" onclick="sendGetRequest(event); ">科研管理系统</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=%r34%\0存档文件\老黄牛存档文件.xlsx" onclick="sendGetRequest(event); ">存档文件</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=%r34%\分类工作\行政_人文行政杂事\人文行政杂事.xlsm" onclick="sendGetRequest(event); ">行政杂事</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=%r34%\分类工作\科研_项目申报\正在申报的项目.xlsm" onclick="sendGetRequest(event); ">科研工作</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=%r34%\分类工作\科研_学术讲座\人文学术讲座.xlsm" onclick="sendGetRequest(event); ">学术讲座</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=https:\\i.tzc.edu.cn/home" onclick="sendGetRequest(event); ">融合门户</a>
+    </div>
+     <div class="grid-item">
+      <a href="\jb\打开?路径=D:\index.lnk" onclick="sendGetRequest(event); ">工作首页</a>
+    </div>
+     <div class="grid-item">
+      <a href="jb\%E6%A8%A1%E6%8B%9F%E8%BE%93%E5%87%BA%E6%8C%89%E9%94%AEpy?key1=down&key2=&key3=" onclick="sendGetRequest(event); ">向下</a>
+    </div>
+     <div class="grid-item">
+      <a href="jb\%E6%A8%A1%E6%8B%9F%E8%BE%93%E5%87%BA%E6%8C%89%E9%94%AEpy?key1=up&key2=&key3=" onclick="sendGetRequest(event); ">向上</a>
+    </div>
+     <div class="grid-item">
+      <a href="\img">现在桌面</a>
+    </div>
+</div>
+
+</div>
+  <script>
+
+
+    function playmp3(url) {
+    // 创建 Audio 对象
+    var audio = new Audio(url);
+    // 播放音乐
+    audio.play();
+    }
+ 
+    function sendLinkText(event) {
+      event.preventDefault(); // 阻止默认的链接跳转行为
+      var linkText = event.target.href
+      linkText = linkText.substring(6);
+      const data = {
+        "constr": linkText
+      };
+      var url ="/jbpost"
+      var t1=sendPostRequest(url,data);
+
+    }
+
+
+  function sendGetRequest(event) {
+    event.preventDefault(); // 阻止默认的链接导航行为
+
+    var url = event.target.href; // 获取链接的URL
+
+    fetch(url)
+      .then(function(response) {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error('Network response was not ok.');
+      })
+      .then(function(data) {
+        console.log('Response:', data);
+        // 处理响应数据
+      })
+      .catch(function(error) {
+        console.error('Error:', error);
+      });
+      playmp3("../static/click.mp3")
+  }
+
+
+
+function sendPostRequest(url, data) {
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+    .then(response => response.json())
+    .then(result => {
+      console.log("POST request successful:", result);
+      return result;
+    })
+    .catch(error => {
+      console.error("Error sending POST request:", error);
+      throw error;
+    });
+}
+    
+
+    var myElement = document.getElementById("myElement");
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement &&    // 全屏模式未激活
+          !document.mozFullScreenElement && 
+          !document.webkitFullscreenElement && 
+          !document.msFullscreenElement) {  // 进入全屏模式
+        if (myElement.requestFullscreen) {
+          myElement.requestFullscreen();
+        } else if (myElement.mozRequestFullScreen) { // Firefox
+          myElement.mozRequestFullScreen();
+        } else if (myElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+          myElement.webkitRequestFullscreen();
+        } else if (myElement.msRequestFullscreen) { // IE/Edge
+          myElement.msRequestFullscreen();
+        }
+      } else {  // 退出全屏模式
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) { // Firefox
+          document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { // IE/Edge
+          document.msExitFullscreen();
+        }
+      }
+    }
+
+
+    
+  </script>
+
+<!--    <script>
+    
+
+        function refreshImage() {
+          url= "\img?" + Date.now(); // 将图像的URL替换为你的图像URL
+          var img = document.getElementById('myImage');
+          img.src = url; // 修改图像的src属性
+        }
+
+        refreshImage();
+        setInterval(refreshImage, 1000);
+    </script>-->
+</body>
+</html>

@@ -74,11 +74,9 @@ def main(fd2={}):
     
     # ----------------[4/4]调用函数并生成arr2ret及f64 -------------------
     try:  # 运行函数,最后要生成arr2ret及f64
-        old_filepath=lilyfun.randfile(valarr,fkeyold,"old")
-        new_filepath=lilyfun.randfile(jsoncontentarr,fkeynew,"new")
+        old_filepath=lilyfun.randfile(inarr,fkeyold,"old")
+        new_filepath=lilyfun.randfile(outarr,fkeynew,"new")
         old_filepath=lilyfun.writefile64(f64,old_filepath)
-        print(old_filepath)
-        print(new_filepath)
     except:  # 保存函数出错后的执行结果
         valarr = lilyfun.printvalarr(valarr,"[运行]读写文件错误。",prflag)
         return lilyfun.mboutputarr(fd2,prflag,valarr)
@@ -115,15 +113,11 @@ def main(fd2={}):
     
     try:  # 运行函数,最后要生成arr2ret及f64
         f64=lilyfun.readfile2f64(new_filepath)#有新文件就读取
-        print(f64)
         # newpath = valarr[fkeynew]
         # if f64!="" and fkeynew!="" and fd2=={}:
         #     lilyfun.writefile64(f64,newpath)
         lilyfun.safedel(old_filepath)
         lilyfun.safedel(new_filepath)
-        #新增1024
-        if f64!="":
-            arr2ret["f64"]=f64
         arr2ret["执行结果"]="√"
     except:  # 保存函数出错后的执行结果
         valarr = lilyfun.printvalarr(valarr,"[执行函数后]读写、删除文件错误。",prflag)
@@ -140,12 +134,10 @@ def main(fd2={}):
         lilyfun.titlepr("执行、输出成功。","",prflag)
         #这是最关键的返回函数，并写入文件
         #print(wholepath)
-        print(lilyfun.mboutputarr(fd2,prflag,arr2ret,f64,wholepath,"key"))
         return lilyfun.mboutputarr(fd2,prflag,arr2ret,f64,wholepath,"key")
     except:  # 保存函数出错后的执行结果
         valarr = lilyfun.printvalarr(valarr,"写入文件出错，请检查值是否正确。",prflag)
-        lilyfun.titlepr("最后写入文件出错，请检查值是否正确。","",prflag)
-        print(lilyfun.mboutputarr(fd2,prflag,valarr))
+        lilyfun.titlepr("最后写入文件出错，请检查值是否正确。","",prflag)       
         return lilyfun.mboutputarr(fd2,prflag,valarr)
 
 

@@ -6,8 +6,9 @@ sys.path.append("d:\\老黄牛小工具\\脚本文件\\py")
 import lilyfun  #老黄牛小工具下的文件
 
 import json,time,base64
-
-
+import pyautogui,io
+from fastapi import FastAPI
+from fastapi.responses import Response
 MOBAN="模板"
 GENPATH="生成文件夹"
 MBPATH=r'd:/老黄牛小工具/word模板'
@@ -63,7 +64,22 @@ def root(request:Request,html:Union[str, None] = ""):
 @app.get("/jb")
 async def root(request:Request):
     return templates.TemplateResponse("jb.html",{"request":request})
+@app.get("/img")
+def capture_screenshot():
+    # 截图
+    screenshot = pyautogui.screenshot()
 
+    # 创建一个字节流对象
+    stream = io.BytesIO()
+
+    # 将截图保存到字节流对象中
+    screenshot.save(stream, format='PNG')
+    stream.seek(0)
+
+    # 生成响应对象，将字节流作为响应内容
+    response = Response(content=stream.getvalue(), media_type='image/png')
+
+    return response
 
 
 class MyData(BaseModel):
@@ -132,9 +148,13 @@ async def dl(jbname:str):
 async def receive_data(jbname:str,request: Request):
     data = await request.body()
     data_dict = parse_qs(data.decode())
+
     decoded_data_dict = {key: value[0] for key, value in data_dict.items()}
 
-    print(decoded_data_dict)
+    lilyfun.pr("11111111111111--------------------------",prstr)
+    print(data.decode())
+    lilyfun.pr("111111111111111111-----------------------------------------------------------------" ,prstr)
+    
     fd2={}
     fd2["fkeyold"]=""
     fd2["fkeynew"]=""
