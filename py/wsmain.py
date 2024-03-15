@@ -64,23 +64,28 @@ def root(request:Request,html:Union[str, None] = ""):
 @app.get("/jb")
 async def root(request:Request):
     return templates.TemplateResponse("jb.html",{"request":request})
-@app.get("/img")
+
+#两个合并起来就是截图并实时发送
+@app.get("/screenshot")
 def capture_screenshot():
     # 截图
     screenshot = pyautogui.screenshot()
-
     # 创建一个字节流对象
     stream = io.BytesIO()
-
     # 将截图保存到字节流对象中
     screenshot.save(stream, format='PNG')
     stream.seek(0)
-
+    headers = {
+        "Cache-Control": "no-cache, no-store, must-revalidate",  # HTTP 1.1
+        "Pragma": "no-cache",  # HTTP 1.0
+        "Expires": "0",  # Proxies
+    }
     # 生成响应对象，将字节流作为响应内容
-    response = Response(content=stream.getvalue(), media_type='image/png')
-
+    response = Response(content=stream.getvalue(), media_type='image/png',headers=headers)
     return response
 
+
+    
 
 class MyData(BaseModel):
     constr: str

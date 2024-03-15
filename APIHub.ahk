@@ -7,9 +7,9 @@ CoordMode, Mouse, Screen
 ProcessName := "python38.exe"
 
 ; 定义要运行的Python脚本路径
-pythonscript = "%A_ScriptDir%\soft\启动uvicorn.bat"
+pythonscript = "%A_ScriptDir%\soft\start_uvicorn.bat"
 
-hidescript = "%A_ScriptDir%\soft\nircmd启动uvicorn.bat"
+hidescript = "%A_ScriptDir%\soft\nircmd_start_uvicorn.bat"
 ;hidescript = "%A_ScriptDir%\soft\启动uvicorn.bat"
 ; 创建托盘图标
 Menu, Tray, NoStandard ; 移除原有菜单
@@ -38,12 +38,14 @@ OnMessage(0x200, "ShowMenu")
 ; 将子菜单添加到一级菜单上
 Menu, Tray, Add, 调试服务器, :TestSubMenu
 Menu, Tray, Add,关闭并退出服务器, ExitScript
+; 设置定时器，每隔一段时间检查进程是否存在
+SetTimer, CheckProcess, 10000
+
 hasRun := 0
 if (hasRun = 0) {
     hasRun := 1
     goipport()
     goto CheckProcess
-
 }
 
 ; 在这里放置其他代码
@@ -51,10 +53,7 @@ aa:
 ; 在这里放置只在首次运行时调用的代码
 return
 
-; 设置定时器，每隔一段时间检查进程是否存在
-SetTimer, CheckProcess, 10000
 
-return
 
 modifyindex:
     run, notepad.exe py\templates\index.html
@@ -76,6 +75,7 @@ CheckProcess:
     ; 检查进程是否存在
     If !ProcessExist(ProcessName)
     {
+        ;msgbox, "运行Python脚本"
         ; 运行Python脚本
         Run, %hidescript%,, Min
     }
