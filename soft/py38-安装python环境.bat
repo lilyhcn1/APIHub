@@ -16,6 +16,11 @@ cd %cd%
 "python38\python38.exe" -m pip install openai  -i https://pypi.tuna.tsinghua.edu.cn/simple/ --trusted-host pypi.tuna.tsinghua.edu.cn
 "python38\python38.exe" -m pip install wakeonlan  -i https://pypi.tuna.tsinghua.edu.cn/simple/ --trusted-host pypi.tuna.tsinghua.edu.cn
 
+"python38\python38.exe" -m pip install asyncio  -i https://pypi.tuna.tsinghua.edu.cn/simple/ --trusted-host pypi.tuna.tsinghua.edu.cn
+"python38\python38.exe" -m pip install edge_tts  -i https://pypi.tuna.tsinghua.edu.cn/simple/ --trusted-host pypi.tuna.tsinghua.edu.cn
+
+
+
 
 "python38\python38.exe" -m pip install pyttsx3  -i https://pypi.tuna.tsinghua.edu.cn/simple/ --trusted-host pypi.tuna.tsinghua.edu.cn  
 
