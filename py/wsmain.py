@@ -1,10 +1,24 @@
+#import logging
+# 设置日志级别
+#logging.basicConfig(level=logging.INFO)
+
+# 自定义日志格式
+#formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+
+# 创建控制台日志处理程序
+#console_handler = logging.StreamHandler()
+#console_handler.setFormatter(formatter)
+
+# 添加处理程序到根日志记录器
+#logger = logging.getLogger()
+#logger.addHandler(console_handler)
 
 
 import sys
 sys.path.append("d:\\老黄牛小工具\\脚本文件\\py")
 
 import lilyfun  #老黄牛小工具下的文件
-
+import chardet
 import json,time,base64
 import pyautogui,io
 from fastapi import FastAPI
@@ -46,14 +60,21 @@ import urllib.parse
 from fastapi.middleware.cors import CORSMiddleware
 
 from urllib.parse import parse_qs
-
-
+import yaml
+from urllib.parse import quote
+import traceback
 
 #这里是wsmain的要修改部分
 app=FastAPI()
+# 记录日志
+#logger.info('Application started')
+
+
+
 #进入首页
 @app.get("/")
 async def root(request:Request):
+    #return "首页暂时有问题，慢慢修。"
     return templates.TemplateResponse("index.html",{"request":request})
 #这里是wsmain的要修改部分
 #进入可以网页界面
@@ -132,134 +153,116 @@ class fd1(BaseModel):
 
 
     
-#自动下载服务器上的脚本
-@app.post("/dl/{jbname}")
-async def dl(jbname:str):
-    print(jbname)
-    jbpath = lilyfun.getexepath(jbname)
-    #print(jbpath)
-    if jbpath=="JbNotExist":
-        return jbpath
-    else:
-        ct2 = lilyfun.readtxt(jbpath)
-    
-        arr["ext"]=os.path.splitext(jbpath)[-1].replace('.',"")
-        arr["f64"]=ct2
-        json64=json.dumps(arr).encode("utf-8")
-        return json64
+
+
+
+def try_decode(data, encodings=('utf-8', 'latin-1', 'ascii')):
+    for encoding in encodings:
+        try:
+            return data.decode(encoding), encoding
+        except UnicodeDecodeError:
+            continue
+    raise ValueError("Failed to decode data with provided encodings")
+
+
 
 #接收ahk上传过来的数据处理后返回
 @app.post("/jb/{jbname}")  
-async def receive_data(jbname:str,request: Request):
-    data = await request.body()
-    data_dict = parse_qs(data.decode())
+async def receive_data(jbname:str,request:Request):
+    #try:
+    #    # 直接在这里设置5秒超时来获取请求体
+    #    data = await asyncio.wait_for(request.body(), timeout=5.0)
+    ##    #原来 data = await request.body()
+    #except asyncio.TimeoutError:
+    #    # 如果超时，则返回超时信息
+    #    print("Request Timeout 5秒超时了。")
+    #    return {"error": "Request Timeout"}
+    try:
+        #print("接收数据之前======================================================")
+        data = await request.body()
 
-    decoded_data_dict = {key: value[0] for key, value in data_dict.items()}
+        detected_encoding = chardet.detect(data)['encoding']  # 检测编码
+        data_dict = data.decode(detected_encoding)
 
-    lilyfun.pr("11111111111111--------------------------",prstr)
-    print(data.decode())
-    lilyfun.pr("111111111111111111-----------------------------------------------------------------" ,prstr)
-    
-    fd2={}
-    fd2["fkeyold"]=""
-    fd2["fkeynew"]=""
-    fd2["f64"] = ""
-
-    # 检查是否存在'json64'键
-    if 'json64' in decoded_data_dict:
-        fd2["json64"]=decoded_data_dict["json64"]
-    else:
-        fd2["json64"] =  lilyfun.arr2json64str(decoded_data_dict)
+        #lilyfun.pr("000000000000000000--------------------------",prstr)
+        lilyfun.pr("--------------------------------------------------------------------------------",prstr)
+        lilyfun.pr("----------------------   "   + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) +"       " + jbname + "  ----------" ,prstr)
+        lilyfun.pr("--------------------------------------------------------------------------------" ,prstr)
+        #print(data_dict)
+        #if type(data_dict) is str:
+        #    data_dict=yaml.safe_load(data_dict)    
         
-    # 检查是否存在'json64'键
-    if 'f64' in decoded_data_dict:
-        fd2["f64"]=decoded_data_dict["f64"]
+        dd= yaml.safe_load(str(data_dict))
 
 
+        decoded_data_dict ={}
+        for  key, value in dd.items():
+             decoded_data_dict[key]=value
 
-    lilyfun.pr("--------------------------------------------------------------------------------",prstr)
-    lilyfun.pr("----------------------   "   + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) +"       " + jbname + "  ----------" ,prstr)
-    lilyfun.pr("--------------------------------------------------------------------------------" ,prstr)
-    json64,f64,fkeyold,fkeynew="","","",""
-    # ----------------四、传入funinputarr并运行函数----------------------
 
-    #导入py
-    try:
-        pyfun=jbname+"py"
-        exec("import "+jbname+"py")
-        #exec("import aaapy")
+        #lilyfun.pr("11111111111111--------------------------",prstr)
+        #print(decoded_data_dict)
+        #lilyfun.pr("111111111111111111-----------------------------------------------------------------" ,prstr)
+        #print(decoded_data_dict)
+
         
-        lilyfun.pr("[main]导入文件 "+pyfun +" 成功！" ,prstr)
-    except:
-        lilyfun.pr("[main]导入文件 "+pyfun +" 出错了，文件不存在。" ,prstr)
-        return  {"status":"error","json64":"","f64":""}
+        fd2={}
+        fd2["fkeyold"]=""
+        fd2["fkeynew"]=""
+        fd2["f64"] = ""
 
-    #执行py,并返回值
-    try:
-        fd2new={}    
-        fd2new=eval(pyfun).main(fd2)
-    except:
-        return  {"status":"error,exec ","json64":"","f64":""}
+        # 检查是否存在'json64'键
+        if 'json64' in decoded_data_dict:
+            fd2["json64"]=decoded_data_dict["json64"]
+        else:
+            fd2["json64"] =  lilyfun.arr2json64str(decoded_data_dict)
+        #lilyfun.pr("6666666666666-----------------------------------------------------------------" ,prstr)
+        #lilyfun.pr(fd2)
+        # 检查是否存在'json64'键
+        if 'f64' in decoded_data_dict:
+            fd2["f64"]=decoded_data_dict["f64"]
 
-    
-    try:
-        json64=fd2new["json64"]
-        f64=fd2new["f64"]
-    except:
-        f64=""
-    return  {"status":"error,read json","json64":json64,"f64":f64}
+        json64,f64,fkeyold,fkeynew="","","",""
+        # ----------------四、传入funinputarr并运行函数----------------------
+
+        #导入py
+        try:
+            pyfun=jbname+"py"
+            exec("import "+jbname+"py")
+            #exec("import aaapy")
+            
+            lilyfun.pr("[main]导入文件 "+pyfun +" 成功！" ,prstr)
+        except Exception as e:
+            print("---------- [main]导入文件 "+pyfun +" 出错了！---------\n"+traceback.format_exc())
+            return  {"status":jbname+"import error.","json64":"","f64":""}
         
+        #执行py,并返回值
+        try:
+            fd2new={}    
+            fd2new=eval(pyfun).main(fd2)
+        except Exception as e:
+            print("---------- [main]执行 "+pyfun +" 出错了！---------\n"+traceback.format_exc())
+            return  {"status":"error,exec ","json64":"","f64":""}
 
-    
-    
-
-    return  {"status":"success","json64":json64,"f64":f64}
-
-#接收ahk上传过来的数据处理后返回
-@app.post("/jb2/{jbname}")  
-async def jb(jbname: str):
-    global prstr
-    lilyfun.pr("--------------------------------------------------------------------------------",prstr)
-    lilyfun.pr("----------------------   "   + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) +"       " + jbname + "  ----------" ,prstr)
-    lilyfun.pr("--------------------------------------------------------------------------------" ,prstr)
-    json64,f64,fkeyold,fkeynew="","","",""
-    # ----------------四、传入funinputarr并运行函数----------------------
-    print(111111111)
-    #导入py
-    try:
-        pyfun=jbname+"py"
-        exec("import "+jbname+"py")
-        #exec("import aaapy")
         
-        lilyfun.pr("[main]导入文件 "+pyfun +" 成功！" ,prstr)
-    except:
-        lilyfun.pr("[main]导入文件 "+pyfun +" 出错了，文件不存在。" ,prstr)
-        return  {"status":"error","json64":"","f64":""}
-
-    #执行py,并返回值
-    try:
-        fd2new={}    
-        fd2new=eval(pyfun).main(fd2)
-    except:
-        return  {"status":"error,exec ","json64":"","f64":""}
-
-    
-    try:
-        json64=fd2new["json64"]
-        f64=fd2new["f64"]
-    except:
-        f64=""
-    return  {"status":"error,read json","json64":json64,"f64":f64}
+        try:
+            json64=fd2new["json64"]
+            f64=fd2new["f64"]
+        except:
+            f64=""
+        if 'json64' in decoded_data_dict:
+            return  {"status":"success","json64":json64,"f64":f64}
+        else:
+            jsonarr=lilyfun.json64tojsonarr(fd2new["json64"])
+            print(jsonarr)
+            arr=jsonarr["contents"]
+            if f64!="":
+                arr["f64"]=f64
+            return json.dumps(arr)
+    except Exception as e:
+        print("---------- 执行出错，请检查! ---------\n"+traceback.format_exc())
+        return "---------- 执行出错，请检查! ---------\n"+traceback.format_exc()
         
-
-    
-    
-
-    return  {"status":"success","json64":json64,"f64":f64}
-
-
-
-
 
 
 
@@ -293,7 +296,16 @@ def run4(item1:Item3):
         base64data=item1.database64
 
     # 导包
-    exec("import " + jbname)
+    try:
+        exec("import " + jbname)
+    except Exception as e:
+        print("---------- 执行出错，请检查! ---------\n"+traceback.format_exc())
+
+
+
+#    except Exception as e:
+#        print("---------- 执行出错，请检查! ---------\n"+traceback.format_exc())
+
 
     #获取脚本中的一些信息
     n = eval(jbname).fkeyold
@@ -389,6 +401,10 @@ def gettodict(queryurl):
             arr[key]=val
     return arr
 
+
+
+
+
 #选择功能并进行相对应脚本的运行
 @app.get('/jb/{gn_type1}')
 def gn(request:Request,gn_type1:Union[str, None] = ""):
@@ -398,28 +414,31 @@ def gn(request:Request,gn_type1:Union[str, None] = ""):
        pyfun=gn_type1
     elif os.path.exists(gn_type1 + "py.py"):
        pyfun=gn_type1+"py"
+    elif os.path.exists(gn_type1 + ".py"):
+       pyfun=gn_type1
     else:
        return "没有该脚本！"
 
     #print("jb get运行0")
 
 
-    exec("import " + pyfun)
-    input1 = eval(pyfun).inarr
-    fkeyold = eval(pyfun).fkeyold
-    fkeynew = eval(pyfun).fkeynew
 
 
-    try: #怕执行出错
-        try:
-            exec("import " + pyfun)
-            input1 = eval(pyfun).inarr
-            fkeyold = eval(pyfun).fkeyold
-            fkeynew = eval(pyfun).fkeynew
-        except:
-            print("导入函数出错，可能是引用了多线程函数的原因！~")
-            return "导入函数出错，可能是引用了多线程函数的原因！~"
+    try:
+        exec("import " + pyfun)
+        input1 = eval(pyfun).inarr
+        outputarr = eval(pyfun).outarr
+        output1 = eval(pyfun).outarr
+        fkeyold = eval(pyfun).fkeyold
+        fkeynew = eval(pyfun).fkeynew
+    except Exception as e:
+        print("导入函数出错，可能是引用了多线程函数的原因！")
+        # 打印异常的堆栈跟踪信息
+        traceback.print_exc()
 
+        return "导入函数出错，可能是引用了多线程函数的原因！~"
+
+    try:
         #print("jb get运行1")
         try:
             getarr=gettodict(request.url.query)
@@ -428,11 +447,12 @@ def gn(request:Request,gn_type1:Union[str, None] = ""):
                 postarr["script_name"]=pyfun  #脚本名称
                 postarr["values"]=getarr
                 postarr["database64"]=""
-                #print(postarr)
+                print(postarr)
                 #print("jb get运行2")
                 url=str(request.base_url)+"run4/"
-                html = requests.post(url, json.dumps(postarr),headers={"Content-Type": "application/json"})
-                #print(html.text)
+                print(url)
+                html = requests.post(url, json.dumps(postarr),headers={"Content-Type": "application/json"}, verify=False)
+                print(html.text)
                 #print("jb get运行3")
                 json1 = json.loads(html.text)
 
@@ -444,25 +464,22 @@ def gn(request:Request,gn_type1:Union[str, None] = ""):
                 except:
                     return json1
 
-        except:
-            return "传参后错误，请检查！"
         #print("jb get运行4")
+        except Exception as e:
+            print("发生了一个错误:", e)
+            # 打印异常的堆栈跟踪信息
+            traceback.print_exc()
+            return "传参后错误，请检查！"
+
 
 
 
 
         #print(input2)
         input2=input1.copy()
+        output2=output1.copy()
         filename=""
         # 不需要输入文件
-
-        #获取到url路径
-        geturl="/jb/"+gn_type1+"?"
-        for key in input2:
-            geturl =geturl+ key +"="+input2[key]+"&"
-        geturl=lilyfun.remove_last_segment(geturl,"&")
-
-
 
         # 需要输入文件
         if fkeyold!="" :
@@ -481,18 +498,58 @@ def gn(request:Request,gn_type1:Union[str, None] = ""):
                 fval=input2[fkeynew]
                 input2.pop(fkeynew)
         #lilyfun.titlepr("input2 ",input2，"true")
-                
-                
-
-        print("脚本【"+gn_type1+"】导入结束！")
-           # 返回结果
 
 
-        return templates.TemplateResponse("gn4.html",
-                                             {"request": request, "function": pyfun, "input_web": input2.items(),"filename":filename,"newfilearr": newkeyarr.items(),"fval":fval,"geturl":geturl})
+
+
+
+
+      
+        inputstr=lilyfun.getjsontype(input2)
+        if fkeyold!="":
+            inputstr=inputstr+", \"f64\":"+ "\""+fkeyold+" 对应文件的base64"+ "\""
+
+        if fkeynew in outputarr:
+            outputarr.pop(fkeynew)
+        #if "" in outputarr:
+        #    outputarr.pop("")
+        outputstr=lilyfun.getjsontype(outputarr)
+        if fkeynew!="":
+            outputstr=outputstr+", \"f64\":"+ "\""+fkeynew+" 对应文件的base64"+ "\""
+          
+
+
+        #获取到url路径
+        geturl="/jb/"+gn_type1+"?"
+        for key in input2:
+            geturl =geturl+ key +"="+input2[key]+"&"
+        geturl=lilyfun.remove_last_segment(geturl,"&")
+
+        
+        #获取到curlurl路径
+        urlbase=request.url.scheme+"://"+request.url.netloc+quote("/jb/"+gn_type1)
+    except Exception as e:
+        print("发生了一个错误:", e)
+        # 打印异常的堆栈跟踪信息
+        traceback.print_exc()
+        return "try error"
+   
+
+
+
+
+            
+            
+
+    print("脚本【"+gn_type1+"】导入结束！")
+       # 返回结果
+
+    return templates.TemplateResponse("gn4.html",
+{"request": request, "function": pyfun, "input_web": input2.items(),"filename":filename,"jbname":gn_type1, 
+"newfilearr": newkeyarr.items(),"outputarr":outputarr.items(), "fval":fval,
+"geturl":geturl, "inputstr":inputstr,"outputstr":outputstr, "urlbase":urlbase})
     
-    except:
-        return "执行出错了！"
+
 
 #这里是wsmain的要修改部分
 #运行配置

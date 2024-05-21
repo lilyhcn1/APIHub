@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # -*- 三思网络(r34.cc) -*-
+#import traceback
+#    except Exception as e:
+#        print("---------- 执行出错，请检查! ---------\n"+traceback.format_exc())
+
 from urllib import request
 import urllib.parse
 import os,os.path,json,sys
@@ -13,7 +17,7 @@ import os
 from datetime import datetime
 import random
 import pyautogui,pyperclip
-
+import traceback
 
 
 
@@ -42,6 +46,12 @@ def get_file_content(filePath):
     with open(filePath, 'rb') as fp:
         return fp.read()
 
+def getjsontype(arr):
+    curlurltemp=""
+    for key in arr:
+        curlurltemp =curlurltemp+ "\""+key+ "\"" +":"+ "\""+arr[key]+ "\""+", "
+    curlurltemp=remove_last_segment(curlurltemp,", ")
+    return curlurltemp
 def remove_last_segment(input_string, target_string):
     # 检查输入字符串是否以目标字符串结尾
     if input_string.endswith(target_string):
@@ -200,18 +210,20 @@ def type_english(text):
     pyautogui.typewrite(text)
     time.sleep(0.1)
  
-def randfile(valarr="",fkeyold="",flag="new"):
-    #print("randfile---"+"fkeyold:"+fkeyold+"flag:"+flag)
+def randfile(valarr="",key="",flag="new"):
+    #print("randfile---"+"key:"+key+"flag:"+flag)
     #print(valarr)
     #print("valarr---")
     nowpath= str(os.getcwd()) + "/"
     
-    if fkeyold=="":
+    if key=="":
         return nowpath+ str(int(round(time.time() * 1000)))+".tmp"
     
+    
     try:
-        f=valarr[fkeyold]
-    except:
+        f=valarr[key]
+    except Exception as e:
+        print("---------- 执行出错，请检查! ---------\n"+traceback.format_exc())
         return nowpath + str(int(round(time.time() * 1000)))+".tmp"
 
 
@@ -588,7 +600,11 @@ def getexepath(jbname):
             return  jbpath
     return  "JbNotExist"  #都找不到，就返回空
 
-
+def printtraceback(valarr,errstr="错误输出值",prflag=True):
+    valarr["执行结果"]=errstr
+    if prflag==True :
+        print(errstr++traceback.format_exc())
+    return valarr
 
 def printvalarr(valarr,errstr="错误输出值",prflag=True):
     valarr["执行结果"]=errstr
@@ -713,10 +729,18 @@ def getfd2(fd2={},flag="json64",path=""):
 #获取fd2的字典 20231215修改
 def getfd2_f64(fd2={},fkeyold="",jsonarr={}):
     f64=""
+
     if fd2!={}:
+
         try:
-            f64=fd2["f64"]
-            print("dddddddddddd")
+            try:
+                f64=fd2["f64"]
+            except:
+                try:
+                    f64=fd2.f64
+                except:
+                    f64=""
+
             if f64=="":
                 try:
                     inpath=jsonarr["contents"][fkeyold]
@@ -727,10 +751,11 @@ def getfd2_f64(fd2={},fkeyold="",jsonarr={}):
             f64=""
 
         return f64
-    elif fkeyold !="":#看是否函数传入
+    elif fkeyold !="":#看是否函数传入, 是excel传入
         try:
             inpath=jsonarr["contents"][fkeyold]
             f64=readfile2f64(inpath)
+
         except:
             f64=""
 
